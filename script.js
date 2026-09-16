@@ -4,7 +4,7 @@ const aiButton = document.getElementById('aiButton');
 const saveButton = document.getElementById('saveButton');
 const outputArea = document.getElementById('outputArea');
 
-// 1. ページ読み込み時の処理
+// 1. ページ読み込み時：保存されたメモがあれば読み込む
 window.addEventListener('DOMContentLoaded', () => {
     const savedMemo = localStorage.getItem('myMemo');
     if (savedMemo) {
@@ -20,7 +20,7 @@ saveButton.addEventListener('click', () => {
     outputArea.textContent = '💾 メモをブラウザに保存しました！';
 });
 
-// 3. 「AIにお願いする」ボタン（安全なAPIキー呼び出し）
+// 3. 「AIにお願いする」ボタン（安全なサーバー中継版）
 aiButton.addEventListener('click', async () => {
     const text = memoInput.value;
     
@@ -29,40 +29,22 @@ aiButton.addEventListener('click', async () => {
         return;
     }
 
-    // ブラウザに保存されているAPIキーを読み込む（なければユーザーに入力を促す）
-    let apiKey = localStorage.getItem('geminiApiKey');
-    
-    if (!apiKey) {
-        apiKey = prompt('【初回のみ】Gemini APIキーを入力してください（ブラウザ内にのみ安全に保存されます）：');
-        if (!apiKey || apiKey.trim() === '') {
-            outputArea.textContent = '⚠️ APIキーが入力されなかったため、AIを実行できません。';
-            return;
-        }
-        localStorage.setItem('geminiApiKey', apiKey.trim());
-    }
-
     outputArea.textContent = '🤖 AIが考えています...少々お待ちください。';
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const promptText = "以下のメモについて、要約やアドバイス、感想などを優しく答えてください。\n\nメモ内容: " + text;
-
     try {
-        const response = await fetch(url, {
+        // 自分のVercelサーバー（api/chat）へ安全にお願いを送ります
+        const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: promptText }] }]
-            })
+            body: JSON.stringify({ message: text })
         });
 
         const data = await response.json();
-        
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-            const aiReply = data.candidates[0].content.parts[0].text;
-            outputArea.textContent = '【AIからの返答】\n' + aiReply;
+
+        if (response.ok && data.reply) {
+            outputArea.textContent = '【AIからの返答】\n' + data.reply;
         } else {
-            outputArea.textContent = '⚠️ AIからの返答に失敗しました。APIキーが正しいか確認してください。（キーをリセットしたい場合はブラウザのデータをクリアしてください）';
-            // 間違ったキーが保存されている場合に備えてクリアする選択肢も持たせられます
+            outputArea.textContent = '⚠️ エラー: ' + (data.error || 'AIからの返答を取得できませんでした。');
         }
 
     } catch (error) {
