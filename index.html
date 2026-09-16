@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIお助けメモアプリ</title>
+    <!-- デザイン用のCSSファイルを読み込みます -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>✨ AIお助けメモアプリ</h1>
+        
+        <!-- メモ入力エリア -->
+        <div class="input-section">
+            <textarea id="memoInput" placeholder="ここにメモや考えたことを入力してね..."></textarea>
+            <button id="aiButton">🤖 AIにお願いする</button>
+            <button id="saveButton">💾 ローカルに保存</button>
+        </div>
+
+        <!-- 結果表示エリア -->
+        <div class="output-section">
+            <h2>結果・保存したメモ</h2>
+            <div id="outputArea">ここにAIの返答や保存したメモが表示されます。</div>
+        </div>
+    </div>
+
+    <!-- 動きをつけるJavaScriptファイルを読み込みます -->
+    <script src="script.js"></script>
+</body>
+</html>
