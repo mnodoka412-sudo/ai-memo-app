@@ -40,3 +40,15 @@ aiButton.addEventListener('click', async () => {
             '「' + text + '」ですね！素晴らしいアイデアです。この調子でどんどんメモを書き留めていきましょう！';
     }, 1000); // 1秒後に返事をする演出
 });
+// Service Workerの登録（オフライン対応）
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then((registration) => {
+                console.log('ServiceWorker registration successful: ', registration.scope);
+            })
+            .catch((err) => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+    });
+}
